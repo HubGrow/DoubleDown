@@ -1,0 +1,63 @@
+local PriceIsRight = game:GetService("Players").LocalPlayer.PlayerGui.PriceIsRight
+
+function Get_Arena()
+    for i,v in pairs(workspace.ArenasREAL:GetDescendants()) do
+        if v:IsA("TextLabel") and v.Name == "Username" and v.Text == "@"..tostring(game.Players.LocalPlayer.Name) then
+            return v.Parent.Parent.Parent.Parent.Parent
+        end
+    end
+end
+
+function Check_Price()
+    repeat task.wait() until Get_Arena()
+    local Arena = Get_Arena()
+    if Arena and Arena:WaitForChild("Important") and Arena.Important:WaitForChild("GuessPrice") and Arena.Important:WaitForChild("ItemImage") then
+        if Arena.Important.GuessPrice:WaitForChild("SurfaceGui") and Arena.Important.GuessPrice.SurfaceGui:WaitForChild("TextLabel") then
+            if Arena.Important.ItemImage:WaitForChild("SurfaceGui") and Arena.Important.ItemImage.SurfaceGui:WaitForChild("ImageLabel") then
+                local First = Arena.Important.GuessPrice.SurfaceGui.TextLabel.Text:split("$")[2]:gsub(",","")
+                local Second = tostring(Arena.Important.ItemImage.SurfaceGui.ImageLabel.Image:split("id=")[2]:split("&")[1])
+                local Final = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://economy.roblox.com/v1/assets/" .. Second .. "/resale-data")).recentAveragePrice
+                if tonumber(First) < tonumber(Final) then
+                    return true
+                else
+                    return false
+                end
+            end
+        end
+    end
+end
+
+function Click(button)
+    if not button then return end
+    game:GetService("GuiService").SelectedObject = button
+
+    repeat
+        task.wait()
+        if game:GetService("GuiService").SelectedObject == button then
+            game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.Return, false, game)
+            game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.Return, false, game)
+            task.wait(0.1)
+        else
+            game:GetService("GuiService").SelectedObject = button
+        end
+    until button.BackgroundTransparency == 1
+
+    task.wait(0.1)
+    game:GetService("GuiService").SelectedObject = nil
+end
+
+
+local StartConnection
+StartConnection = PriceIsRight.ChildAdded:Connect(function(Choose)
+    if Choose.Name == "Bottom Middle Template" then
+        if Check_Price() then
+            local button = Choose:WaitForChild("Buttons"):WaitForChild("Higher")
+            Click(button)
+        else
+            local button = Choose:WaitForChild("Buttons"):WaitForChild("Lower")
+            Click(button)
+        end
+    end
+end)
+
+warn("Price Is Right : Loaded")
