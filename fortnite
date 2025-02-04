@@ -16,7 +16,7 @@ function Check_Price()
             if Arena.Important.ItemImage:WaitForChild("SurfaceGui") and Arena.Important.ItemImage.SurfaceGui:WaitForChild("ImageLabel") then
                 local First = Arena.Important.GuessPrice.SurfaceGui.TextLabel.Text:split("$")[2]:gsub(",","")
                 local Second = tostring(Arena.Important.ItemImage.SurfaceGui.ImageLabel.Image:split("id=")[2]:split("&")[1])
-                local Final = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://economy.roblox.com/v1/assets/" .. Second .. "/resale-data")).recentAveragePrice
+                local Final = game:GetService("HttpService"):JSONDecode(game:HttpGet("https://rblx.trade/api/v2/catalog/"..Second.."/info")).rap
                 if tonumber(First) < tonumber(Final) then
                     return true
                 else
@@ -30,22 +30,18 @@ end
 function Click(button)
     if not button then return end
     game:GetService("GuiService").SelectedObject = button
-
-    repeat
-        task.wait()
+    repeat task.wait()
         if game:GetService("GuiService").SelectedObject == button then
             game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.Return, false, game)
             game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.Return, false, game)
-            task.wait(0.1)
+            task.wait(.1)
         else
             game:GetService("GuiService").SelectedObject = button
         end
     until button.BackgroundTransparency == 1
-
     task.wait(0.1)
     game:GetService("GuiService").SelectedObject = nil
 end
-
 
 local StartConnection
 StartConnection = PriceIsRight.ChildAdded:Connect(function(Choose)
