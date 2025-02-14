@@ -1,0 +1,57 @@
+local Cups = game:GetService("Players").LocalPlayer.PlayerGui.Cups
+
+function Get_Arena()
+    for i, v in pairs(workspace.ArenasREAL:GetDescendants()) do
+        if v:IsA("TextLabel") and v.Name == "Username" and v.Text == "@" .. tostring(game.Players.LocalPlayer.Name) then
+            return v.Parent.Parent.Parent.Parent.Parent
+        end
+    end
+end
+
+local function roundToTwoDigits(value)
+    return math.floor(value * 100) / 100
+end
+
+local visibleDiamonds = {}
+local matchingCups = {}
+local spotValues = {}
+print('hi')
+
+function auto_cups()
+    local Arena = Get_Arena()
+    repeat task.wait() until Get_Arena()
+    if Arena and Arena:WaitForChild("Important") and Arena.Important:WaitForChild("CupPositions") and Arena.Important:WaitForChild("Diamonds") and (Cups["Bottom Middle Wait"] or Cups["Bottom Middle Play"]) then
+        local cupse = (function() for _, f in ipairs(Arena.Important:GetChildren()) do if f.Name ~= "CupPositions" and f.Name ~= "Diamonds" then return f end end end)()
+        
+        repeat wait(0.1) visibleDiamonds = {} for _, diamond in ipairs(Arena.Diamonds:GetChildren()) do if diamond:IsA("Part") and diamond.Transparency == 0 then table.insert(visibleDiamonds, diamond) end end until #visibleDiamonds > 0
+        print('visible diamonders')
+        local matchingCups = {}
+        for _, diamond in ipairs(visibleDiamonds) do
+            local diamondX = roundToTwoDigits(diamond.Position.X)
+            for _, cup in ipairs(cupse:GetChildren()) do
+                if cup:IsA("Part") and roundToTwoDigits(cup:GetPivot().Position.X) == diamondX then
+                    table.insert(matchingCups, cup.Name)
+                end
+            end
+        end
+        print("nigga")
+        local spotValues = {}
+        for _, cupName in ipairs(matchingCups) do
+            local spot = (cupse:FindFirstChild(cupName) or {}):FindFirstChild("Spot")
+            if spot and spot:IsA("IntValue") then table.insert(spotValues, spot.Value) end
+        end
+
+        repeat wait(0.1) until not next(Arena.Diamonds:GetChildren(), function(diamond) return diamond:IsA("Part") and diamond.Transparency ~= 1 end)
+        repeat wait(0.1) until not table.find(spotValues, (cupse:FindFirstChild(matchingCups[1]) or {}):FindFirstChild("Spot")?.Value)
+
+        for _, cupName in ipairs(matchingCups) do
+            local spot = (cupse:FindFirstChild(cupName) or {}):FindFirstChild("Spot")
+            if spot and spot:IsA("IntValue") then table.insert(spotValues, spot.Value) end
+        end
+
+        for _, value in ipairs(spotValues) do print("Spot value: " .. value) end
+    end
+end
+
+
+auto_cups()
