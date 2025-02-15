@@ -10,7 +10,7 @@ function Get_Arena()
 end
 
 local function escapePattern(str)
-    return str:gsub("([%'%-%(%):%?])", "%%%1")
+    return str:gsub("([%'%-%(%):%?%)])", "%%%1")
 end
 
 function Check_Price()
